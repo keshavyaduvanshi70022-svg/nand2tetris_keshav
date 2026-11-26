@@ -1,0 +1,27 @@
+// Hack CPU: standard Nand2Tetris implementation.
+CHIP CPU {
+    IN  inM[16], instruction[16], reset;
+    OUT outM[16], writeM, addressM[15], pc[15];
+    PARTS:
+    Mux16(a=instruction, b=aluOut, sel=instruction[15], out=aIn);
+    Not(in=instruction[15], out=isA);
+    Or(a=isA, b=loadAFromC, out=loadA);
+    ARegister(in=aIn, load=loadA, out=aOut, out[0..14]=addressM);
+    DRegister(in=aluOut, load=loadD, out=dOut);
+    Mux16(a=aOut, b=inM, sel=instruction[12], out=y);
+    ALU(x=dOut, y=y, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluOut, out=outM, zr=zr, ng=ng);
+    And(a=instruction[15], b=instruction[3], out=writeM);
+    And(a=instruction[15], b=instruction[2], out=loadD);
+    And(a=instruction[15], b=instruction[5], out=loadAFromC);
+    // Jump condition: j1=JGT, j2=JEQ, j3=JLT.
+    Not(in=ng, out=notNg);
+    Not(in=zr, out=notZr);
+    And(a=notNg, b=notZr, out=positive);
+    And(a=instruction[0], b=ng, out=takeJLT);
+    And(a=instruction[1], b=zr, out=takeJEQ);
+    And(a=instruction[2], b=positive, out=takeJGT);
+    Or(a=takeJLT, b=takeJEQ, out=jumpA);
+    Or(a=jumpA, b=takeJGT, out=jumpB);
+    And(a=instruction[15], b=jumpB, out=doJump);
+    PC(in=aOut, load=doJump, inc=true, reset=reset, out[0..14]=pc);
+}

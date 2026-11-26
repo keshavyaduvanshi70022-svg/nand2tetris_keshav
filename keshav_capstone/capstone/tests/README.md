@@ -1,0 +1,1 @@
+Place the official course test scripts and comparison files here (or keep them beside the HDL chips as required by the Hardware Simulator). Required tests from the assignment: CPU.tst, Memory.tst, ComputerAdd.tst, ComputerMax.tst, ComputerRect.tst. These were not supplied in the assignment PDF.
